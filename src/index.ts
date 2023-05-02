@@ -185,15 +185,17 @@ async function processSourceMaps(opts: NormalizedOptions) {
     }
   }
 
-  for (const mapToUpload of mapsToUpload) {
+  const uploadPromises = mapsToUpload.map((mapToUpload) => {
     const { relativePath, absPath } = mapToUpload;
     debug("Uploading %s", absPath);
     log("normal", `Uploading ${relativePath}`);
 
     if (!dryRun) {
-      await uploadSourcemapToAPI(groupName, apiKey, mapToUpload);
+      return uploadSourcemapToAPI(groupName, apiKey, mapToUpload);
     }
-  }
+  });
+
+  await Promise.all(uploadPromises);
 
   debug("Done");
   log(
